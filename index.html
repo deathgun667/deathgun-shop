@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Death Gun Shop</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+/* ===================== RESET & BASE ===================== */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:#050509;
+  color:#f2f2f6;
+  overflow:hidden;
+  position:fixed;
+  inset:0;
+}
+button{font-family:inherit;border:none;background:none;color:inherit;cursor:pointer;}
+input{font-family:inherit;}
+img{display:block;max-width:100%;}
+::selection{background:rgba(124,92,255,.4);}
+
+/* ===================== BACKGROUND ===================== */
+#bg-glow{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,61,110,.16), transparent 40%),
+    radial-gradient(circle at 85% 8%, rgba(124,92,255,.20), transparent 45%),
+    radial-gradient(circle at 50% 95%, rgba(124,92,255,.14), transparent 50%),
+    linear-gradient(180deg,#08080d 0%,#050508 55%,#030304 100%);
+}
+#particles{position:fixed;inset:0;z-index:1;pointer-events:none;display:block;}
+
+/* ===================== APP SHELL ===================== */
+#app{
+  position:relative;z-index:2;
+  height:100%;
+  max-width:480px;
+  margin:0 auto;
+  display:flex;flex-direction:column;
+  background:transparent;
+}
+
+/* ---- topbar ---- */
+.topbar{
+  display:flex;align-items:center;gap:10px;
+  padding:calc(14px + env(safe-area-inset-top,0px)) 16px 10px;
+  flex-shrink:0;
+}
+.brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.brand-mark{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#ff3d6e,#7c5cff);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(255,61,110,.35);
+}
+.brand-mark svg{width:19px;height:19px;}
+.brand-text{min-width:0;}
+.brand-title{font-size:16px;font-weight:800;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.brand-sub{font-size:11px;color:#9a9aa8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.icon-btn{
+  width:38px;height:38px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  transition:background .15s,transform .1s;
+}
+.icon-btn:active{transform:scale(.92);background:rgba(255,255,255,.12);}
+.icon-btn svg{width:17px;height:17px;}
+
+.search-wrap{
+  padding:0 16px 10px;flex-shrink:0;
+  max-height:0;overflow:hidden;opacity:0;
+  transition:max-height .22s ease, opacity .18s ease, padding .22s ease;
+}
+.search-wrap.open{max-height:60px;opacity:1;}
+.search-box{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:10px 12px;
+}
+.search-box svg{width:16px;height:16px;color:#8f8fa0;flex-shrink:0;}
+.search-box input{
+  flex:1;background:transparent;border:none;outline:none;color:#f2f2f6;font-size:14px;
+}
+.search-box input::placeholder{color:#7a7a8a;}
+.search-clear{color:#8f8fa0;font-size:12px;padding:2px 4px;}
+
+/* ---- views ---- */
+.views{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:14px;}
+.view{padding:4px 16px 90px;animation:fadeIn .18s ease;}
+.view[hidden]{display:none;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.section-row{display:flex;align-items:center;justify-content:space-between;margin:14px 0 10px;}
+.section-title{font-size:15px;font-weight:700;}
+.crumb-btn{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;color:#b9b9c6;font-weight:600;
+  padding:6px 2px;margin-bottom:4px;
+}
+.crumb-btn svg{width:14px;height:14px;}
+
+/* ---- category grid ---- */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cat-card{
+  position:relative;border-radius:18px;overflow:hidden;
+  aspect-ratio:1/1.05;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:12px;
+  transition:transform .12s, border-color .12s;
+}
+.cat-card:active{transform:scale(.97);}
+.cat-card.soon{opacity:.55;}
+.cat-art{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.cat-art.brawl{background:radial-gradient(circle at 50% 35%,rgba(255,178,36,.35),rgba(255,61,110,.12) 60%,transparent 75%);}
+.cat-art.clash{background:radial-gradient(circle at 50% 35%,rgba(76,201,255,.30),rgba(124,92,255,.14) 60%,transparent 75%);}
+.cat-art svg{width:52%;height:52%;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5));}
+.cat-label{position:relative;z-index:1;}
+.cat-name{font-size:14px;font-weight:800;}
+.cat-desc{font-size:11px;color:#b7b7c4;margin-top:2px;}
+.cat-badge{
+  position:absolute;top:10px;right:10px;z-index:1;
+  font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(4px);
+  padding:4px 7px;border-radius:8px;color:#e6e6ee;border:1px solid rgba(255,255,255,.1);
+}
+
+/* ---- product list ---- */
+.product-card{
+  display:flex;gap:12px;align-items:center;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:10px;margin-bottom:10px;
+}
+.product-thumb{
+  width:56px;height:56px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(160deg,#1c1c26,#0e0e14);
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.07);
+}
+.product-thumb svg{width:30px;height:30px;}
+.product-info{flex:1;min-width:0;}
+.product-title{font-size:14px;font-weight:700;}
+.product-price{font-size:13px;color:#ff9fb6;font-weight:700;margin-top:2px;}
+.product-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;width:98px;}
+.btn{
+  border-radius:11px;padding:8px 10px;font-size:12.5px;font-weight:700;text-align:center;
+  transition:transform .1s, filter .1s;white-space:nowrap;
+}
+.btn:active{transform:scale(.95);}
+.btn-primary{background:linear-gradient(135deg,#ff3d6e,#7c5cff);color:#fff;box-shadow:0 4px 12px rgba(255,61,110,.28);}
+.btn-primary:active{filter:brightness(.92);}
+.btn-ghost{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#e8e8ee;}
+.btn-block{display:block;width:100%;}
+.btn-lg{padding:14px;border-radius:16px;font-size:15px;}
+.btn[disabled]{opacity:.4;pointer-events:none;}
+
+.empty-state{
+  text-align:center;padding:50px 20px;color:#8b8b9a;
+}
+.empty-state svg{width:46px;height:46px;margin:0 auto 12px;opacity:.6;}
+.empty-state p{font-size:13px;line-height:1.5;}
+
+/* ---- cart ---- */
+.cart-item{
+  display:flex;gap:12px;align-items:center;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:10px;margin-bottom:10px;
+}
+.qty-stepper{display:flex;align-items:center;gap:0;background:rgba(255,255,255,.06);border-radius:10px;border:1px solid rgba(255,255,255,.1);}
+.qty-stepper button{width:26px;height:26px;font-size:15px;font-weight:700;}
+.qty-stepper span{min-width:22px;text-align:center;font-size:13px;font-weight:700;}
+.cart-remove{color:#8b8b9a;font-size:11px;margin-top:4px;text-decoration:underline;}
+.cart-summary{
+  position:sticky;bottom:0;margin-top:6px;
+  background:rgba(15,15,20,.85);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:14px;
+}
+.cart-summary-row{display:flex;justify-content:space-between;font-size:13px;color:#b7b7c4;margin-bottom:8px;}
+.cart-summary-total{font-size:18px;font-weight:800;color:#fff;}
+
+/* ---- settings ---- */
+.profile-card{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;padding:14px;margin:14px 0 16px;
+}
+.avatar{
+  width:54px;height:54px;border-radius:50%;flex-shrink:0;overflow:hidden;
+  background:linear-gradient(135deg,#7c5cff,#ff3d6e);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;
+  border:2px solid rgba(255,255,255,.12);
+}
+.avatar img{width:100%;height:100%;object-fit:cover;}
+.profile-name{font-size:15px;font-weight:800;}
+.profile-username{font-size:12px;color:#9a9aa8;margin-top:1px;}
+.profile-email-row{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;color:#c9c9d3;}
+.profile-email-row .val{color:#ff9fb6;font-weight:700;}
+.pencil-btn{width:22px;height:22px;border-radius:7px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pencil-btn svg{width:11px;height:11px;}
+
+.menu-list{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;}
+.menu-row{
+  display:flex;align-items:center;gap:12px;padding:14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.menu-row:last-child{border-bottom:none;}
+.menu-row-icon{
+  width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.menu-row-icon svg{width:16px;height:16px;}
+.menu-row-text{flex:1;}
+.menu-row-title{font-size:13.5px;font-weight:700;}
+.menu-row-sub{font-size:11px;color:#8b8b9a;margin-top:1px;}
+.menu-row-chev{width:14px;height:14px;color:#6d6d7a;flex-shrink:0;}
+.footer-note{text-align:center;font-size:11px;color:#5c5c68;margin-top:18px;}
+
+/* ---- bottom nav ---- */
+.bottom-nav{
+  position:relative;z-index:3;flex-shrink:0;
+  display:flex;gap:8px;
+  padding:8px 12px calc(10px + env(safe-area-inset-bottom,0px));
+  background:rgba(10,10,14,.82);backdrop-filter:blur(14px);
+  border-top:1px solid rgba(255,255,255,.07);
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:7px 0 5px;border-radius:14px;color:#83838f;position:relative;
+  transition:color .15s;
+}
+.nav-btn svg{width:20px;height:20px;}
+.nav-btn span{font-size:10.5px;font-weight:700;}
+.nav-btn.active{color:#fff;background:rgba(255,255,255,.06);}
+.nav-btn.active svg{filter:drop-shadow(0 0 6px rgba(255,61,110,.5));}
+.nav-badge{
+  position:absolute;top:2px;right:22%;
+  background:linear-gradient(135deg,#ff3d6e,#7c5cff);
+  color:#fff;font-size:9px;font-weight:800;min-width:15px;height:15px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;padding:0 3px;
+}
+.nav-badge[hidden]{display:none;}
+
+/* ===================== MODAL / SHEET ===================== */
+.overlay{
+  position:fixed;inset:0;z-index:10;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(2px);
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+.overlay.open{opacity:1;pointer-events:auto;}
+.sheet{
+  width:100%;max-width:480px;
+  background:#0c0c12;
+  border:1px solid rgba(255,255,255,.08);border-bottom:none;
+  border-radius:22px 22px 0 0;
+  padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px));
+  transform:translateY(100%);transition:transform .26s cubic-bezier(.32,.72,.22,1);
+  max-height:88vh;overflow-y:auto;
+}
+.overlay.open .sheet{transform:translateY(0);}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.18);margin:4px auto 14px;}
+.sheet-title{font-size:16px;font-weight:800;margin-bottom:4px;}
+.sheet-sub{font-size:12px;color:#9a9aa8;margin-bottom:16px;}
+.sheet-close{position:absolute;top:16px;right:16px;}
+
+.order-summary{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;margin-bottom:16px;}
+.order-line{display:flex;justify-content:space-between;font-size:12.5px;color:#c9c9d3;padding:3px 0;}
+.order-line.total{margin-top:6px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);font-size:14px;font-weight:800;color:#fff;}
+
+.field-label{font-size:12px;font-weight:700;color:#c9c9d3;margin-bottom:7px;}
+.field-input{
+  width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+  border-radius:13px;padding:13px 14px;font-size:14px;color:#fff;outline:none;margin-bottom:6px;
+}
+.field-input::placeholder{color:#6d6d7a;}
+.field-input.err{border-color:#ff3d6e;}
+.field-err-msg{font-size:11px;color:#ff6b8a;margin-bottom:8px;min-height:14px;}
+.field-hint{font-size:11px;color:#75758a;margin-bottom:16px;}
+
+.email-display{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  border-radius:13px;padding:12px 14px;margin-bottom:16px;
+}
+.email-display .lbl{font-size:10.5px;color:#8b8b9a;text-transform:uppercase;letter-spacing:.4px;}
+.email-display .val{font-size:13.5px;font-weight:700;color:#fff;margin-top:2px;}
+
+.pay-methods{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.pay-method{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:12px 14px;
+}
+.pay-method.selected{border-color:#7c5cff;background:rgba(124,92,255,.1);}
+.pay-icon{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pay-icon svg{width:20px;height:20px;}
+.pay-name{font-size:13.5px;font-weight:700;}
+.pay-sub{font-size:10.5px;color:#8b8b9a;margin-top:1px;}
+.pay-radio{width:19px;height:19px;border-radius:50%;border:2px solid rgba(255,255,255,.25);flex-shrink:0;margin-left:auto;position:relative;}
+.pay-method.selected .pay-radio{border-color:#7c5cff;}
+.pay-method.selected .pay-radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:#7c5cff;}
+
+.info-banner{
+  display:flex;gap:8px;background:rgba(255,178,36,.09);border:1px solid rgba(255,178,36,.25);
+  border-radius:12px;padding:10px 12px;margin-bottom:16px;font-size:11.5px;color:#f3d9a8;line-height:1.45;
+}
+.info-banner svg{width:15px;height:15px;flex-shrink:0;margin-top:1px;color:#ffb224;}
+
+.success-wrap{text-align:center;padding:10px 0 6px;}
+.success-icon{
+  width:64px;height:64px;border-radius:50%;margin:0 auto 16px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 22px rgba(34,197,94,.3);
+}
+.success-icon svg{width:30px;height:30px;color:#fff;}
+.success-title{font-size:17px;font-weight:800;margin-bottom:6px;}
+.success-sub{font-size:12.5px;color:#9a9aa8;margin-bottom:18px;line-height:1.5;}
+.order-id-chip{
+  display:inline-block;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  padding:6px 12px;border-radius:10px;font-size:12px;font-weight:700;color:#ff9fb6;margin-bottom:20px;
+}
+.success-actions{display:flex;flex-direction:column;gap:9px;}
+
+.toast{
+  position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(10px);
+  background:rgba(20,20,26,.95);border:1px solid rgba(255,255,255,.12);
+  padding:10px 16px;border-radius:12px;font-size:12.5px;font-weight:600;color:#fff;
+  z-index:20;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  max-width:88%;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,.4);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media (min-width:481px){
+  body{background:#000;}
+  #app{border-left:1px solid rgba(255,255,255,.06);border-right:1px solid rgba(255,255,255,.06);}
+}
+</style>
+</head>
+<body>
+
+<div id="bg-glow"></div>
+<canvas id="particles"></canvas>
+
+<div id="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 3 7v6c0 5 3.8 8.7 9 9 5.2-.3 9-4 9-9V7l-9-5Z" fill="#fff"/><path d="M9 12.5l2 2 4-4.5" stroke="#7c5cff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">Death Gun Shop</div>
+        <div class="brand-sub" id="topbar-sub">Игровая валюта без переплат</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="btn-search" aria-label="Поиск">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <div class="search-wrap" id="search-wrap">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="text" id="search-input" placeholder="Найти товар, например «80 гемов»">
+      <button class="search-clear" id="search-clear">Очистить</button>
+    </div>
+  </div>
+
+  <div class="views">
+
+    <!-- ===================== SHOP VIEW ===================== -->
+    <section class="view" id="view-shop"></section>
+
+    <!-- ===================== CART VIEW ===================== -->
+    <section class="view" id="view-cart" hidden></section>
+
+    <!-- ===================== SETTINGS VIEW ===================== -->
+    <section class="view" id="view-settings" hidden></section>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="shop">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 9.5 12 4l8 5.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1V9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <span>Магазин</span>
+    </button>
+    <button class="nav-btn" data-view="cart">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="21" r="1.4" fill="currentColor"/><circle cx="17" cy="21" r="1.4" fill="currentColor"/></svg>
+      <span>Корзина</span>
+      <span class="nav-badge" id="cart-badge" hidden>0</span>
+    </button>
+    <button class="nav-btn" data-view="settings">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l1.9-1.5-2-3.4-2.2.9a7.7 7.7 0 0 0-2.6-1.5L14 2h-4l-.5 2.3a7.7 7.7 0 0 0-2.6 1.5l-2.2-.9-2 3.4L4.6 10a7.6 7.6 0 0 0 0 3l-1.9 1.5 2 3.4 2.2-.9c.8.7 1.6 1.2 2.6 1.5L10 22h4l.5-2.3c1-.3 1.8-.8 2.6-1.5l2.2.9 2-3.4-1.9-1.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <span>Настройки</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- ===================== BUY / CHECKOUT SHEET ===================== -->
+<div class="overlay" id="overlay">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <button class="icon-btn sheet-close" id="sheet-close">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div id="sheet-body"></div>
+  </div>
+</div>
+
+<!-- ===================== EDIT EMAIL SHEET ===================== -->
+<div class="overlay" id="overlay-email">
+  <div class="sheet" id="sheet-email">
+    <div class="sheet-handle"></div>
+    <button class="icon-btn sheet-close" id="sheet-email-close">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="sheet-title">Почта Supercell ID</div>
+    <div class="sheet-sub">Мы сохраним её, чтобы не спрашивать каждый раз при покупке.</div>
+    <div class="field-label">Email</div>
+    <input class="field-input" id="email-input" type="email" placeholder="example@mail.com" autocomplete="off">
+    <div class="field-err-msg" id="email-err"></div>
+    <button class="btn btn-primary btn-lg btn-block" id="email-save">Сохранить</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   DEATH GUN SHOP — Telegram Mini App
+   Всё, что нужно донастроить, помечено блоком "// >>> НАСТРОЙКА".
+   ========================================================================= */
+
+/* >>> НАСТРОЙКА: ссылка на техподдержку. Пришлите её мне, и я вставлю сюда,
+   либо впишите сами между кавычками, например 'https://t.me/your_support'. */
+const SUPPORT_URL = "";
+
+/* >>> НАСТРОЙКА: фотографии категорий и товаров.
+   Сейчас вместо фото используются красивые иконки-заглушки.
+   Когда пришлёте реальные картинки, я подставлю их сюда по ссылкам/файлам. */
+
+const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+
+/* ===================== ICONS ===================== */
+const ICONS = {
+  gem: `<svg viewBox="0 0 24 24"><defs><linearGradient id="gGem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8ef3ff"/><stop offset="1" stop-color="#7c5cff"/></linearGradient></defs><path d="M4 9l4-6h8l4 6-9 12L4 9Z" fill="url(#gGem)" stroke="rgba(255,255,255,.5)" stroke-width=".6" stroke-linejoin="round"/><path d="M4 9h16M9.5 3l-2 6 4.5 12 4.5-12-2-6" stroke="rgba(255,255,255,.55)" stroke-width=".6" fill="none"/></svg>`,
+  star: `<svg viewBox="0 0 24 24"><defs><linearGradient id="gStar" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#ff8a3d"/></linearGradient></defs><path d="M12 2.5l2.9 6.4 6.9.7-5.2 4.7 1.5 6.8L12 17.6 5.9 21.1l1.5-6.8-5.2-4.7 6.9-.7L12 2.5Z" fill="url(#gStar)" stroke="rgba(255,255,255,.5)" stroke-width=".5" stroke-linejoin="round"/></svg>`,
+  crown: `<svg viewBox="0 0 24 24"><defs><linearGradient id="gCrown" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9fe8ff"/><stop offset="1" stop-color="#5b7cff"/></linearGradient></defs><path d="M3 8l4 3 5-6 5 6 4-3-2 11H5L3 8Z" fill="url(#gCrown)" stroke="rgba(255,255,255,.5)" stroke-width=".6" stroke-linejoin="round"/></svg>`,
+  search: `<svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+  back: `<svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  chev: `<svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  pencil: `<svg viewBox="0 0 24 24" fill="none"><path d="M4 20l.9-3.6L16.4 5a1.5 1.5 0 0 1 2.1 0l.5.5a1.5 1.5 0 0 1 0 2.1L7.6 19.1 4 20Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
+  support: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3a8 8 0 0 0-8 8v3a2 2 0 0 0 2 2h1v-6H5a7 7 0 0 1 14 0h-2v6h1a2 2 0 0 0 2-2v-3a8 8 0 0 0-8-8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 16v1a5 5 0 0 0 5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+  cart: `<svg viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="21" r="1.3" fill="currentColor"/><circle cx="17" cy="21" r="1.3" fill="currentColor"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l5 5 9-11" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  info: `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v6M12 7.5v.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  card: `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.6"/></svg>`,
+  sbp: `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v6l-7 8-7-8V7l7-4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  box: `<svg viewBox="0 0 24 24" fill="none"><path d="M21 8l-9-5-9 5 9 5 9-5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 8v8l9 5 9-5V8M12 13v8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`
+};
+
+/* ===================== DATA ===================== */
+const GEM_PRODUCTS = [
+  {id:"gems-30",  title:"30 гемов",   amount:30,   price:299},
+  {id:"gems-80",  title:"80 гемов",   amount:80,   price:599},
+  {id:"gems-170", title:"170 гемов",  amount:170,  price:1399},
+  {id:"gems-360", title:"360 гемов",  amount:360,  price:2499},
+  {id:"gems-950", title:"950 гемов",  amount:950,  price:5799},
+  {id:"gems-2000",title:"2000 гемов", amount:2000, price:11999},
+].map(p => ({...p, icon:"gem", categoryId:"brawl", subcategoryId:"brawl-gems"}));
+
+const CATEGORIES = [
+  {
+    id:"brawl", title:"Brawl Stars", desc:"Гемы и пропуски", icon:"star", art:"brawl",
+    subcategories:[
+      {id:"brawl-gems", title:"Гемы", desc:"Игровая валюта Brawl Stars", icon:"gem", products:GEM_PRODUCTS}
+    ]
+  },
+  {
+    id:"clash", title:"Clash Royale", desc:"Скоро в продаже", icon:"crown", art:"clash", soon:true,
+    subcategories:[]
+  }
+];
+
+/* ===================== STATE ===================== */
+const store = {
+  get(key, fallback){ try{ const v = localStorage.getItem(key); return v===null?fallback:JSON.parse(v);}catch(e){return fallback;} },
+  set(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+};
+
+const state = {
+  route: "shop",           // shop | cart | settings
+  categoryId: null,
+  subcategoryId: null,
+  searchOpen: false,
+  searchQuery: "",
+  cart: store.get("dgs_cart", []),   // [{productId, qty}]
+  email: store.get("dgs_email", ""),
+  orders: store.get("dgs_orders", [])
+};
+
+function saveCart(){ store.set("dgs_cart", state.cart); }
+function saveEmail(){ store.set("dgs_email", state.email); }
+function saveOrders(){ store.set("dgs_orders", state.orders); }
+
+/* ===================== TELEGRAM SETUP ===================== */
+let tgUser = null;
+try{
+  if (tg){
+    tg.ready();
+    tg.expand();
+    if (tg.setHeaderColor) try{ tg.setHeaderColor("#050509"); }catch(e){}
+    if (tg.setBackgroundColor) try{ tg.setBackgroundColor("#050509"); }catch(e){}
+    if (tg.MainButton) try{ tg.MainButton.hide(); }catch(e){}
+    tgUser = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+  }
+}catch(e){}
+if (!tgUser){
+  // Заглушка для просмотра вне Telegram (в обычном браузере)
+  tgUser = {first_name:"Гость", username:"guest", photo_url:null};
+}
+
+function haptic(type){
+  try{ if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type||"light"); }catch(e){}
+}
+
+/* ===================== UTIL ===================== */
+function money(n){ return n.toLocaleString("ru-RU") + " ₽"; }
+function esc(s){ return (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+
+let toastTimer=null;
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove("show"), 2200);
+}
+
+function findProduct(id){
+  for (const c of CATEGORIES) for (const s of c.subcategories) {
+    const p = s.products.find(p=>p.id===id);
+    if (p) return p;
+  }
+  return null;
+}
+function allProducts(){
+  const out=[];
+  for (const c of CATEGORIES) for (const s of c.subcategories) out.push(...s.products);
+  return out;
+}
+
+/* ===================== CART LOGIC ===================== */
+function cartAdd(productId, qty){
+  qty = qty || 1;
+  const line = state.cart.find(l=>l.productId===productId);
+  if (line) line.qty += qty; else state.cart.push({productId, qty});
+  saveCart();
+  renderCartBadge();
+  haptic("light");
+}
+function cartSetQty(productId, qty){
+  const line = state.cart.find(l=>l.productId===productId);
+  if (!line) return;
+  line.qty = qty;
+  if (line.qty <= 0) state.cart = state.cart.filter(l=>l.productId!==productId);
+  saveCart();
+  renderCartBadge();
+  render();
+}
+function cartRemove(productId){
+  state.cart = state.cart.filter(l=>l.productId!==productId);
+  saveCart();
+  renderCartBadge();
+  render();
+}
+function cartCount(){ return state.cart.reduce((s,l)=>s+l.qty,0); }
+function cartTotal(){ return state.cart.reduce((s,l)=>{ const p=findProduct(l.productId); return s + (p?p.price*l.qty:0); },0); }
+function cartLinesResolved(){ return state.cart.map(l=>({...l, product:findProduct(l.productId)})).filter(l=>l.product); }
+
+function renderCartBadge(){
+  const badge = document.getElementById("cart-badge");
+  const n = cartCount();
+  if (n>0){ badge.hidden=false; badge.textContent = n>99?"99+":n; } else badge.hidden=true;
+}
+
+/* ===================== NAV ===================== */
+function goto(route){
+  state.route = route;
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active", b.dataset.view===route));
+  ["shop","cart","settings"].forEach(v=>{
+    document.getElementById("view-"+v).hidden = (v!==route);
+  });
+  document.getElementById("topbar-sub").textContent =
+    route==="shop" ? "Игровая валюта без переплат" :
+    route==="cart" ? "Ваши товары перед оформлением" :
+    "Профиль и поддержка";
+  syncBackButton();
+  render();
+  document.querySelector(".views").scrollTop = 0;
+}
+
+function openCategory(id){ state.categoryId=id; state.subcategoryId=null; render(); syncBackButton(); }
+function openSubcategory(id){ state.subcategoryId=id; render(); syncBackButton(); }
+function goBackInShop(){
+  if (state.subcategoryId){ state.subcategoryId=null; render(); }
+  else if (state.categoryId){ state.categoryId=null; render(); }
+  syncBackButton();
+}
+
+function syncBackButton(){
+  if (!tg || !tg.BackButton) return;
+  const showable = state.route==="shop" && (state.categoryId || state.subcategoryId);
+  try{
+    if (showable){ tg.BackButton.show(); } else { tg.BackButton.hide(); }
+  }catch(e){}
+}
+if (tg && tg.BackButton){
+  try{ tg.BackButton.onClick(()=>{
+    if (isSheetOpen("overlay")) return closeSheet("overlay");
+    if (isSheetOpen("overlay-email")) return closeSheet("overlay-email");
+    if (state.route==="shop" && (state.categoryId||state.subcategoryId)) return goBackInShop();
+    if (state.route!=="shop") return goto("shop");
+  }); }catch(e){}
+}
+
+/* ===================== RENDER: SHOP ===================== */
+function render(){
+  if (state.route==="shop") renderShop();
+  if (state.route==="cart") renderCart();
+  if (state.route==="settings") renderSettings();
+}
+
+function productCardHTML(p){
+  return `
+  <div class="product-card">
+    <div class="product-thumb">${ICONS[p.icon]||ICONS.gem}</div>
+    <div class="product-info">
+      <div class="product-title">${esc(p.title)}</div>
+      <div class="product-price">${money(p.price)}</div>
+    </div>
+    <div class="product-actions">
+      <button class="btn btn-primary" data-action="buy" data-id="${p.id}">Купить</button>
+      <button class="btn btn-ghost" data-action="add" data-id="${p.id}">В корзину</button>
+    </div>
+  </div>`;
+}
+
+function renderShop(){
+  const root = document.getElementById("view-shop");
+
+  // ---- search mode (query typed) ----
+  if (state.searchOpen && state.searchQuery.trim()){
+    const q = state.searchQuery.trim().toLowerCase();
+    const results = allProducts().filter(p=>p.title.toLowerCase().includes(q));
+    root.innerHTML = `
+      <div class="section-row"><div class="section-title">Результаты поиска</div></div>
+      ${results.length ? results.map(productCardHTML).join("") : `
+        <div class="empty-state">
+          ${ICONS.search}
+          <p>Ничего не найдено по запросу «${esc(state.searchQuery)}»</p>
+        </div>`}
+    `;
+    bindProductActions(root);
+    return;
+  }
+
+  const cat = CATEGORIES.find(c=>c.id===state.categoryId);
+  const sub = cat && cat.subcategories.find(s=>s.id===state.subcategoryId);
+
+  if (sub){
+    root.innerHTML = `
+      <button class="crumb-btn" id="crumb-back">${ICONS.back}<span>${esc(cat.title)}</span></button>
+      <div class="section-row"><div class="section-title">${esc(sub.title)}</div></div>
+      ${sub.products.map(productCardHTML).join("")}
+    `;
+    root.querySelector("#crumb-back").onclick = goBackInShop;
+    bindProductActions(root);
+    return;
+  }
+
+  if (cat){
+    root.innerHTML = `
+      <button class="crumb-btn" id="crumb-back">${ICONS.back}<span>Категории</span></button>
+      <div class="section-row"><div class="section-title">${esc(cat.title)}</div></div>
+      ${cat.subcategories.length ? `<div class="cat-grid">${cat.subcategories.map(s=>`
+        <div class="cat-card" data-sub="${s.id}">
+          <div class="cat-art ${cat.art}">${ICONS[s.icon]||ICONS.gem}</div>
+          <div class="cat-label"><div class="cat-name">${esc(s.title)}</div><div class="cat-desc">${esc(s.desc)}</div></div>
+        </div>`).join("")}</div>` : `
+        <div class="empty-state">${ICONS.box}<p>Подкатегории для «${esc(cat.title)}» скоро появятся</p></div>`}
+    `;
+    root.querySelector("#crumb-back").onclick = goBackInShop;
+    root.querySelectorAll(".cat-card[data-sub]").forEach(el=>{
+      el.onclick = ()=>{ haptic(); openSubcategory(el.dataset.sub); };
+    });
+    return;
+  }
+
+  // ---- top level: categories ----
+  root.innerHTML = `
+    <div class="section-row"><div class="section-title">Категории</div></div>
+    <div class="cat-grid">
+      ${CATEGORIES.map(c=>`
+        <div class="cat-card ${c.soon?'soon':''}" data-cat="${c.id}">
+          ${c.soon?'<div class="cat-badge">Скоро</div>':''}
+          <div class="cat-art ${c.art}">${ICONS[c.icon]}</div>
+          <div class="cat-label"><div class="cat-name">${esc(c.title)}</div><div class="cat-desc">${esc(c.desc)}</div></div>
+        </div>`).join("")}
+    </div>
+  `;
+  root.querySelectorAll(".cat-card[data-cat]").forEach(el=>{
+    el.onclick = ()=>{ haptic(); openCategory(el.dataset.cat); };
+  });
+}
+
+function bindProductActions(root){
+  root.querySelectorAll('[data-action="add"]').forEach(btn=>{
+    btn.onclick = ()=>{ cartAdd(btn.dataset.id,1); toast("Добавлено в корзину"); };
+  });
+  root.querySelectorAll('[data-action="buy"]').forEach(btn=>{
+    btn.onclick = ()=>{ haptic(); openBuySheet([{productId:btn.dataset.id, qty:1, product:findProduct(btn.dataset.id)}]); };
+  });
+}
+
+/* ===================== RENDER: CART ===================== */
+function renderCart(){
+  const root = document.getElementById("view-cart");
+  const lines = cartLinesResolved();
+  if (!lines.length){
+    root.innerHTML = `<div class="section-row"><div class="section-title">Корзина</div></div>
+      <div class="empty-state">${ICONS.cart}<p>Корзина пуста.<br>Добавьте товары в разделе «Магазин».</p></div>`;
+    return;
+  }
+  root.innerHTML = `
+    <div class="section-row"><div class="section-title">Корзина</div></div>
+    ${lines.map(l=>`
+      <div class="cart-item">
+        <div class="product-thumb">${ICONS[l.product.icon]||ICONS.gem}</div>
+        <div class="product-info">
+          <div class="product-title">${esc(l.product.title)}</div>
+          <div class="product-price">${money(l.product.price)}</div>
+          <div class="cart-remove" data-remove="${l.productId}">Удалить</div>
+        </div>
+        <div class="qty-stepper">
+          <button data-dec="${l.productId}">−</button>
+          <span>${l.qty}</span>
+          <button data-inc="${l.productId}">+</button>
+        </div>
+      </div>
+    `).join("")}
+    <div class="cart-summary">
+      <div class="cart-summary-row"><span>Товаров</span><span>${cartCount()} шт.</span></div>
+      <div class="cart-summary-row"><span>Итого</span><span class="cart-summary-total">${money(cartTotal())}</span></div>
+      <button class="btn btn-primary btn-lg btn-block" id="btn-checkout">Оформить заказ</button>
+    </div>
+  `;
+  root.querySelectorAll("[data-inc]").forEach(b=>b.onclick=()=>{ const l=state.cart.find(x=>x.productId===b.dataset.inc); cartSetQty(b.dataset.inc, l.qty+1); });
+  root.querySelectorAll("[data-dec]").forEach(b=>b.onclick=()=>{ const l=state.cart.find(x=>x.productId===b.dataset.dec); cartSetQty(b.dataset.dec, l.qty-1); });
+  root.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>cartRemove(b.dataset.remove));
+  const checkoutBtn = root.querySelector("#btn-checkout");
+  if (checkoutBtn) checkoutBtn.onclick = ()=>{ haptic(); openBuySheet(cartLinesResolved(), true); };
+}
+
+/* ===================== RENDER: SETTINGS ===================== */
+function initials(u){
+  const n = (u.first_name||u.username||"?").trim();
+  return n.slice(0,1).toUpperCase();
+}
+function renderSettings(){
+  const root = document.getElementById("view-settings");
+  const name = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") || "Пользователь";
+  const uname = tgUser.username ? "@"+tgUser.username : "Telegram ID: "+(tgUser.id||"—");
+  root.innerHTML = `
+    <div class="profile-card">
+      <div class="avatar">${tgUser.photo_url ? `<img src="${esc(tgUser.photo_url)}" alt="">` : initials(tgUser)}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="profile-name">${esc(name)}</div>
+        <div class="profile-username">${esc(uname)}</div>
+        <div class="profile-email-row">
+          <span>Почта:</span>
+          <span class="val">${state.email ? esc(state.email) : "не указана"}</span>
+          <button class="pencil-btn" id="btn-edit-email">${ICONS.pencil}</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-list">
+      <div class="menu-row" id="row-support">
+        <div class="menu-row-icon">${ICONS.support}</div>
+        <div class="menu-row-text">
+          <div class="menu-row-title">Техподдержка</div>
+          <div class="menu-row-sub">${SUPPORT_URL ? "Написать в чат поддержки" : "Скоро будет доступно"}</div>
+        </div>
+        <div class="menu-row-chev">${ICONS.chev}</div>
+      </div>
+    </div>
+
+    <div class="footer-note">Death Gun Shop · v1.0</div>
+  `;
+  document.getElementById("btn-edit-email").onclick = openEmailSheet;
+  document.getElementById("row-support").onclick = ()=>{
+    if (SUPPORT_URL){
+      try{ if (tg && tg.openTelegramLink && SUPPORT_URL.includes("t.me")) tg.openTelegramLink(SUPPORT_URL);
+           else if (tg && tg.openLink) tg.openLink(SUPPORT_URL);
+           else window.open(SUPPORT_URL, "_blank"); }catch(e){ window.open(SUPPORT_URL, "_blank"); }
+    } else {
+      toast("Ссылка на поддержку скоро появится");
+    }
+  };
+}
+
+/* ===================== EMAIL SHEET ===================== */
+function isSheetOpen(id){ return document.getElementById(id).classList.contains("open"); }
+function openSheetEl(id){ document.getElementById(id).classList.add("open"); syncBackButton(); }
+function closeSheet(id){ document.getElementById(id).classList.remove("open"); syncBackButton(); }
+
+function openEmailSheet(){
+  const input = document.getElementById("email-input");
+  input.value = state.email || "";
+  document.getElementById("email-err").textContent = "";
+  input.classList.remove("err");
+  openSheetEl("overlay-email");
+  setTimeout(()=>input.focus(), 250);
+}
+document.getElementById("email-save").onclick = ()=>{
+  const input = document.getElementById("email-input");
+  const v = input.value.trim();
+  if (!validEmail(v)){
+    input.classList.add("err");
+    document.getElementById("email-err").textContent = "Введите корректный email";
+    return;
+  }
+  state.email = v;
+  saveEmail();
+  closeSheet("overlay-email");
+  toast("Почта сохранена");
+  if (state.route==="settings") renderSettings();
+};
+document.getElementById("sheet-email-close").onclick = ()=>closeSheet("overlay-email");
+document.getElementById("overlay-email").addEventListener("click", e=>{ if (e.target.id==="overlay-email") closeSheet("overlay-email"); });
+
+/* ===================== BUY SHEET (checkout flow) ===================== */
+let buyState = null; // {lines, isCart, step, payment}
+
+function openBuySheet(lines, isCart){
+  buyState = {lines, isCart:!!isCart, step: state.email ? "pay" : "email", payment:"cardlink"};
+  renderBuySheet();
+  openSheetEl("overlay");
+}
+document.getElementById("sheet-close").onclick = ()=>closeSheet("overlay");
+document.getElementById("overlay").addEventListener("click", e=>{ if (e.target.id==="overlay") closeSheet("overlay"); });
+
+function buyTotal(){ return buyState.lines.reduce((s,l)=>s + l.product.price*l.qty, 0); }
+
+function renderBuySheet(){
+  const body = document.getElementById("sheet-body");
+  const total = buyTotal();
+  const linesHTML = buyState.lines.map(l=>`
+    <div class="order-line"><span>${esc(l.product.title)} × ${l.qty}</span><span>${money(l.product.price*l.qty)}</span></div>
+  `).join("");
+
+  if (buyState.step==="email"){
+    body.innerHTML = `
+      <div class="sheet-title">Оформление заказа</div>
+      <div class="sheet-sub">Проверьте состав заказа перед оплатой</div>
+      <div class="order-summary">
+        ${linesHTML}
+        <div class="order-line total"><span>Итого</span><span>${money(total)}</span></div>
+      </div>
+      <div class="field-label">Напишите почту от Supercell ID</div>
+      <input class="field-input" id="buy-email-input" type="email" placeholder="example@mail.com" autocomplete="off">
+      <div class="field-err-msg" id="buy-email-err"></div>
+      <div class="field-hint">На эту почту должен быть привязан игровой аккаунт — гемы придут именно туда.</div>
+      <button class="btn btn-primary btn-lg btn-block" id="buy-continue">Продолжить</button>
+    `;
+    const input = document.getElementById("buy-email-input");
+    input.value = state.email || "";
+    document.getElementById("buy-continue").onclick = ()=>{
+      const v = input.value.trim();
+      if (!validEmail(v)){
+        input.classList.add("err");
+        document.getElementById("buy-email-err").textContent = "Введите корректный email";
+        return;
+      }
+      state.email = v; saveEmail();
+      buyState.step = "pay";
+      renderBuySheet();
+    };
+    setTimeout(()=>input.focus(), 250);
+    return;
+  }
+
+  if (buyState.step==="pay"){
+    body.innerHTML = `
+      <div class="sheet-title">Оплата заказа</div>
+      <div class="sheet-sub">Проверьте почту и выберите способ оплаты</div>
+
+      <div class="email-display">
+        <div><div class="lbl">Почта Supercell ID</div><div class="val">${esc(state.email)}</div></div>
+        <button class="pencil-btn" id="buy-edit-email">${ICONS.pencil}</button>
+      </div>
+
+      <div class="order-summary">
+        ${linesHTML}
+        <div class="order-line total"><span>Итого</span><span>${money(total)}</span></div>
+      </div>
+
+      <div class="field-label">Способ оплаты</div>
+      <div class="pay-methods">
+        <div class="pay-method ${buyState.payment==='cardlink'?'selected':''}" data-pay="cardlink">
+          <div class="pay-icon">${ICONS.card}</div>
+          <div><div class="pay-name">Cardlink</div><div class="pay-sub">Оплата картой</div></div>
+          <div class="pay-radio"></div>
+        </div>
+        <div class="pay-method ${buyState.payment==='sbp'?'selected':''}" data-pay="sbp">
+          <div class="pay-icon">${ICONS.sbp}</div>
+          <div><div class="pay-name">СБП</div><div class="pay-sub">Быстрый перевод по QR / из банка</div></div>
+          <div class="pay-radio"></div>
+        </div>
+      </div>
+
+      <div class="info-banner">${ICONS.info}<span>Приём оплаты подключается. Сейчас заказ оформляется как заявка — с вами свяжутся в Telegram для завершения оплаты и выдачи гемов.</span></div>
+
+      <button class="btn btn-primary btn-lg btn-block" id="buy-pay">Оплатить ${money(total)}</button>
+    `;
+    document.getElementById("buy-edit-email").onclick = ()=>{ buyState.step="email"; renderBuySheet(); };
+    body.querySelectorAll("[data-pay]").forEach(el=>{
+      el.onclick = ()=>{ buyState.payment = el.dataset.pay; renderBuySheet(); };
+    });
+    document.getElementById("buy-pay").onclick = submitOrder;
+    return;
+  }
+
+  if (buyState.step==="success"){
+    body.innerHTML = `
+      <div class="success-wrap">
+        <div class="success-icon">${ICONS.check}</div>
+        <div class="success-title">Заказ оформлен</div>
+        <div class="success-sub">Мы получили вашу заявку и скоро свяжемся с вами в Telegram, чтобы завершить оплату и выдать гемы.</div>
+        <div class="order-id-chip">${buyState.orderId}</div>
+        <div class="success-actions">
+          ${SUPPORT_URL ? `<button class="btn btn-ghost btn-block" id="buy-support">Написать в поддержку</button>` : ``}
+          <button class="btn btn-primary btn-block" id="buy-done">Готово</button>
+        </div>
+      </div>
+    `;
+    const supportBtn = document.getElementById("buy-support");
+    if (supportBtn) supportBtn.onclick = ()=>{
+      try{ if (tg && tg.openTelegramLink && SUPPORT_URL.includes("t.me")) tg.openTelegramLink(SUPPORT_URL);
+           else window.open(SUPPORT_URL,"_blank"); }catch(e){ window.open(SUPPORT_URL,"_blank"); }
+    };
+    document.getElementById("buy-done").onclick = ()=>{ closeSheet("overlay"); };
+    return;
+  }
+}
+
+function submitOrder(){
+  haptic("medium");
+  const total = buyTotal();
+  const orderId = "DG-" + Date.now().toString(36).toUpperCase();
+  const payload = {
+    orderId,
+    items: buyState.lines.map(l=>({title:l.product.title, amount:l.product.amount, qty:l.qty, price:l.product.price})),
+    total,
+    email: state.email,
+    payment: buyState.payment,
+    user: { id: tgUser.id||null, username: tgUser.username||null, first_name: tgUser.first_name||null }
+  };
+  try{ if (tg && tg.sendData) tg.sendData(JSON.stringify(payload)); }catch(e){}
+  state.orders.unshift(payload);
+  saveOrders();
+
+  if (buyState.isCart){ state.cart = []; saveCart(); renderCartBadge(); }
+  else { state.cart = state.cart.filter(l=>l.productId!==buyState.lines[0].productId || buyState.lines.length>1); }
+
+  buyState.step = "success";
+  buyState.orderId = orderId;
+  renderBuySheet();
+  if (state.route==="cart") renderCart();
+}
+
+/* ===================== SEARCH ===================== */
+document.getElementById("btn-search").onclick = ()=>{
+  state.searchOpen = !state.searchOpen;
+  document.getElementById("search-wrap").classList.toggle("open", state.searchOpen);
+  if (state.route!=="shop") goto("shop");
+  if (state.searchOpen) setTimeout(()=>document.getElementById("search-input").focus(), 240);
+  else { state.searchQuery=""; document.getElementById("search-input").value=""; renderShop(); }
+};
+document.getElementById("search-input").addEventListener("input", e=>{
+  state.searchQuery = e.target.value;
+  renderShop();
+});
+document.getElementById("search-clear").onclick = ()=>{
+  state.searchQuery=""; document.getElementById("search-input").value="";
+  state.searchOpen=false;
+  document.getElementById("search-wrap").classList.remove("open");
+  renderShop();
+};
+
+/* ===================== NAV BINDING ===================== */
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.onclick = ()=>{
+    haptic();
+    if (btn.dataset.view==="shop"){
+      // Открывая вкладку "Магазин", всегда возвращаемся к списку категорий
+      state.categoryId = null;
+      state.subcategoryId = null;
+      state.searchOpen = false;
+      state.searchQuery = "";
+      document.getElementById("search-wrap").classList.remove("open");
+      document.getElementById("search-input").value = "";
+    }
+    goto(btn.dataset.view);
+  };
+});
+
+/* ===================== PARTICLE BACKGROUND ===================== */
+(function particles(){
+  const canvas = document.getElementById("particles");
+  const ctx = canvas.getContext("2d");
+  let W,H,dpr;
+  let pts = [];
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio||1, 2);
+    W = canvas.width = Math.floor(window.innerWidth*dpr);
+    H = canvas.height = Math.floor(window.innerHeight*dpr);
+    canvas.style.width = window.innerWidth+"px";
+    canvas.style.height = window.innerHeight+"px";
+    const count = Math.round((window.innerWidth*window.innerHeight)/16000);
+    pts = Array.from({length: Math.min(count, 90)}, makePoint);
+  }
+  function makePoint(){
+    return {
+      x: Math.random()*W,
+      y: Math.random()*H,
+      r: (Math.random()*1.6+0.5)*dpr,
+      vy: -(Math.random()*0.18+0.05)*dpr,
+      vx: (Math.random()-0.5)*0.06*dpr,
+      a: Math.random()*0.5+0.15,
+      hue: Math.random()<0.5 ? "255,255,255" : (Math.random()<0.5?"255,120,160":"150,130,255")
+    };
+  }
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    for (const p of pts){
+      p.x += p.vx; p.y += p.vy;
+      if (p.y < -10) { p.y = H+10; p.x = Math.random()*W; }
+      if (p.x < -10) p.x = W+10;
+      if (p.x > W+10) p.x = -10;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${p.hue},${p.a})`;
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    }
+    if (!reduceMotion) requestAnimationFrame(tick);
+  }
+  window.addEventListener("resize", resize);
+  document.addEventListener("visibilitychange", ()=>{
+    if (!document.hidden && !reduceMotion) requestAnimationFrame(tick);
+  });
+  resize();
+  tick();
+})();
+
+/* ===================== INIT ===================== */
+renderCartBadge();
+goto("shop");
+</script>
+</body>
+</html>
