@@ -229,6 +229,33 @@ img{display:block;max-width:100%;}
 .cart-summary-row{display:flex;justify-content:space-between;font-size:13px;color:var(--hint);margin-bottom:8px;}
 .cart-summary-total{font-size:18px;font-weight:800;color:#fff;}
 
+/* ---- заказы ---- */
+.orders-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.orders-tab{
+  flex:1;text-align:center;font-size:13px;font-weight:700;color:var(--hint);
+  padding:10px 8px;border-radius:12px;background:var(--card-bg);border:1px solid var(--card-border);
+}
+.orders-tab.active{color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);}
+.order-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-radius:18px;padding:16px;margin-bottom:12px;
+}
+.order-card.done{opacity:.75;}
+.order-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.order-card-num{font-size:15px;font-weight:800;}
+.order-card-status{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;padding:4px 9px;border-radius:8px;background:rgba(255,178,61,.15);color:#ffb23d;}
+.order-card-status.done{background:rgba(111,227,161,.15);color:var(--success);}
+.order-card-items{font-size:13px;color:rgba(255,255,255,.82);margin-bottom:10px;}
+.order-card-code{
+  font-size:12.5px;font-weight:700;color:#4fd6ff;background:rgba(79,214,255,.08);
+  border-radius:10px;padding:9px 11px;margin-bottom:10px;word-break:break-all;
+}
+.order-card-copy-hint{font-weight:500;color:var(--hint);}
+.order-card-hint{font-size:11.5px;color:var(--hint);line-height:1.5;margin-bottom:10px;}
+.order-card-hint.success{color:var(--success);font-weight:600;}
+.order-card-testdone{display:block;width:100%;text-align:center;font-size:10.5px;color:var(--hint);margin-top:8px;text-decoration:underline;}
+
 /* ---- settings ---- */
 .profile-card{
   display:flex;align-items:center;gap:14px;
@@ -377,6 +404,18 @@ img{display:block;max-width:100%;}
 .tx-amount{font-size:13.5px;font-weight:800;flex-shrink:0;white-space:nowrap;margin-left:6px;}
 .tx-amount.plus{color:var(--success);}
 .tx-amount.minus{color:var(--danger);}
+
+/* ---- правила пользования (тексты документов) ---- */
+.legal-body-pad{padding:4px 4px 24px;}
+.legal-h{font-size:14.5px;font-weight:700;margin:18px 0 8px;color:#fff;}
+.legal-h:first-child{margin-top:0;}
+.legal-p{font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.82);margin-bottom:10px;}
+.legal-ul{margin:0 0 10px;padding-left:18px;}
+.legal-ul li{font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.82);margin-bottom:4px;}
+.legal-link{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13.5px;font-weight:700;color:#4fd6ff;margin-bottom:10px;padding:10px 12px;background:rgba(79,214,255,.08);border-radius:12px;}
+.legal-link svg{width:14px;height:14px;flex-shrink:0;}
+.legal-hr{height:1px;background:rgba(255,255,255,.08);margin:16px 0;}
+.legal-small{font-size:11px;line-height:1.5;color:var(--hint);}
 
 .secret-screen.red-room{
   background:
@@ -591,6 +630,7 @@ img{display:block;max-width:100%;}
   <div class="views">
     <section class="view" id="view-shop"></section>
     <section class="view" id="view-cart" hidden></section>
+    <section class="view" id="view-orders" hidden></section>
     <section class="view" id="view-settings" hidden></section>
   </div>
 
@@ -603,6 +643,11 @@ img{display:block;max-width:100%;}
       <svg viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="21" r="1.4" fill="currentColor"/><circle cx="17" cy="21" r="1.4" fill="currentColor"/></svg>
       <span>Корзина</span>
       <span class="nav-badge" id="cart-badge" hidden>0</span>
+    </button>
+    <button class="nav-btn" data-view="orders">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M17.5 15l2 2 3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Заказы</span>
+      <span class="nav-badge" id="orders-badge" hidden>0</span>
     </button>
     <button class="nav-btn" data-view="settings">
       <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -719,6 +764,24 @@ img{display:block;max-width:100%;}
   <div class="secret-body stretch" id="history-body"></div>
 </div>
 
+<!-- ===================== ПРАВИЛА ПОЛЬЗОВАНИЯ: список документов ===================== -->
+<div class="secret-screen" id="screen-legal-list">
+  <div class="secret-header">
+    <button class="icon-btn secret-back" id="legal-list-back" aria-label="Назад"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="secret-title">📄 Правила пользования</div>
+  </div>
+  <div class="secret-body stretch" id="legal-list-body"></div>
+</div>
+
+<!-- ===================== ПРАВИЛА ПОЛЬЗОВАНИЯ: текст документа ===================== -->
+<div class="secret-screen" id="screen-legal-doc">
+  <div class="secret-header">
+    <button class="icon-btn secret-back" id="legal-doc-back" aria-label="Назад"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="secret-title" id="legal-doc-title">Документ</div>
+  </div>
+  <div class="secret-body stretch legal-body-pad" id="legal-doc-body"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -727,9 +790,20 @@ img{display:block;max-width:100%;}
    Всё, что нужно донастроить, помечено блоком "// >>> НАСТРОЙКА".
    ========================================================================= */
 
-/* >>> НАСТРОЙКА: ссылка на техподдержку. Пришлите её мне, и я вставлю сюда,
-   либо впишите сами между кавычками, например 'https://t.me/your_support'. */
-const SUPPORT_URL = "";
+/* >>> НАСТРОЙКА: ссылка на техподдержку / менеджера. Взял её из ваших PDF
+   с документами (там везде указан @DeathGun_Gems) — если понадобится другой
+   контакт, замените ссылку между кавычками. */
+const SUPPORT_URL = "https://t.me/DeathGun_Gems";
+const MANAGER_URL = SUPPORT_URL; // тот же контакт, куда покупатель пишет за получением заказа
+
+/* >>> НАСТРОЙКА (бэкенд): адрес API, на который отправляется заказ, чтобы админ
+   получил уведомление в самом боте с кнопками "Открыть чат" / "Выполнено".
+   Пока сервера нет, оставьте пустую строку — заказ просто сохранится в
+   приложении, а уведомление админу не отправится. Как только появится бэкенд
+   (см. пояснение, которое я отправил вместе с этим файлом), впишите сюда его
+   адрес, например 'https://api.deathgunshop.ru/order' — и обязательно
+   отправляйте туда tg.initData, чтобы бэкенд мог проверить подлинность запроса. */
+const NOTIFY_ENDPOINT = "";
 
 /* >>> НАСТРОЙКА: фотографии категорий и товаров.
    Сейчас вместо фото используются простые неоновые иконки-заглушки.
@@ -755,7 +829,10 @@ const ICONS = {
   box: `<svg viewBox="0 0 24 24" fill="none"><path d="M21 8l-9-5-9 5 9 5 9-5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 8v8l9 5 9-5V8M12 13v8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
   wallet: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1"/><rect x="3" y="7.5" width="18" height="12" rx="2.5"/><path d="M15.5 13.5h2"/></svg>`,
   trophy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 5H5a2 2 0 0 0 0 4h1.5M16 5h3a2 2 0 0 1 0 4h-1.5"/><path d="M12 13v3M9 20h6M10 16.5h4v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2Z"/></svg>`,
-  history: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h13a2 2 0 0 1 2 2v13l-3-2-3 2-3-2-3 2-3-2V6a2 2 0 0 1 2-2Z"/><path d="M8 9h8M8 13h5"/></svg>`
+  history: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h13a2 2 0 0 1 2 2v13l-3-2-3 2-3-2-3 2-3-2V6a2 2 0 0 1 2-2Z"/><path d="M8 9h8M8 13h5"/></svg>`,
+  doc: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4M8.5 12h7M8.5 15.5h7M8.5 8.5h3"/></svg>`,
+  shield: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4.5"/></svg>`,
+  question: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.7 2.7 0 0 1 5.2 1c0 1.6-2.5 1.8-2.5 3.6"/><path d="M12 17.2v.1"/></svg>`
 };
 
 /* ===================== DATA ===================== */
@@ -786,6 +863,147 @@ const CATEGORIES = [
   }
 ];
 
+/* ===================== ПРАВИЛА ПОЛЬЗОВАНИЯ (тексты из присланных PDF) ===================== */
+const LEGAL_DOCS = [
+  {
+    id: "privacy", icon: "shield", title: "Политика конфиденциальности",
+    blocks: [
+      {t:"p", text:"Настоящая Политика конфиденциальности определяет порядок обработки и защиты информации, которую Death Gun Shop получает от пользователей при использовании бота, оформлении заказов и обращении в службу поддержки."},
+      {t:"h", text:"1. Общие положения"},
+      {t:"p", text:"1.1. Используя бот, оформляя заказ или обращаясь в службу поддержки, пользователь соглашается с условиями настоящей Политики конфиденциальности в части, применимой к соответствующему взаимодействию с сервисом."},
+      {t:"p", text:"1.2. Мы стремимся обрабатывать информацию только в объёме, необходимом для работы магазина, выполнения заказов, обработки обращений и обеспечения безопасности сервиса."},
+      {t:"h", text:"2. Какая информация может обрабатываться"},
+      {t:"p", text:"В зависимости от способа использования магазина может обрабатываться следующая информация:"},
+      {t:"ul", items:[
+        "Telegram ID и данные Telegram-профиля, доступные боту",
+        "информация, которую пользователь самостоятельно предоставляет при оформлении заказа",
+        "данные, необходимые для выполнения внутриигрового заказа",
+        "сведения о заказах, их статусе и истории операций",
+        "информация, предоставленная пользователем при обращении в службу поддержки",
+        "сведения, необходимые для проведения или подтверждения оплаты",
+        "техническая информация, если её сбор осуществляется используемыми сервисами и необходим для функционирования магазина"
+      ]},
+      {t:"p", text:"Мы не запрашиваем у пользователя больше информации, чем необходимо для соответствующей операции."},
+      {t:"h", text:"3. Цели обработки информации"},
+      {t:"p", text:"Полученная информация может использоваться для:"},
+      {t:"ul", items:[
+        "оформления и выполнения заказов",
+        "проверки статуса и истории заказов",
+        "обработки платежей и связанных с ними операций",
+        "возврата денежных средств в предусмотренных случаях",
+        "ответов на обращения пользователей и работы службы поддержки",
+        "предотвращения мошенничества, злоупотреблений и попыток обхода правил магазина",
+        "обеспечения стабильной и безопасной работы сервиса"
+      ]},
+      {t:"h", text:"4. Передача информации третьим лицам"},
+      {t:"p", text:"4.1. Информация пользователя может передаваться третьим лицам только в случаях, когда это необходимо для выполнения заказа, обработки платежа, обеспечения работы используемых сервисов либо предусмотрено применимым законодательством."},
+      {t:"p", text:"4.2. В частности, при проведении оплаты определённые данные могут обрабатываться соответствующим платёжным сервисом в соответствии с его собственными правилами и политикой обработки данных."},
+      {t:"p", text:"4.3. Мы не продаём персональные данные пользователей третьим лицам."},
+      {t:"h", text:"5. Защита информации"},
+      {t:"p", text:"5.1. Мы принимаем разумные технические и организационные меры для защиты обрабатываемой информации от несанкционированного доступа, изменения, раскрытия или уничтожения."},
+      {t:"p", text:"5.2. При этом ни один способ хранения или передачи информации через интернет не может гарантировать абсолютную безопасность данных."},
+      {t:"h", text:"6. Хранение информации"},
+      {t:"p", text:"6.1. Информация хранится в течение периода, необходимого для выполнения целей, указанных в настоящей Политике, выполнения обязательств по заказам, разрешения спорных ситуаций и соблюдения требований применимого законодательства."},
+      {t:"p", text:"6.2. После того как хранение информации перестаёт быть необходимым, данные могут быть удалены или обезличены, если дальнейшее хранение не требуется по закону."},
+      {t:"h", text:"7. Права пользователя"},
+      {t:"p", text:"Пользователь вправе обратиться в службу поддержки по вопросам обработки его информации, уточнения предоставленных данных или удаления информации в случаях, когда такое удаление не противоречит требованиям законодательства и необходимости исполнения обязательств по заказам."},
+      {t:"p", text:"Для обращения используйте контакты поддержки, указанные в настройках бота."},
+      {t:"link", label:"Telegram: @DeathGun_Gems", url:"https://t.me/DeathGun_Gems"},
+      {t:"h", text:"8. Изменение политики"},
+      {t:"p", text:"8.1. Настоящая Политика конфиденциальности может обновляться в связи с изменением работы магазина, используемых сервисов или применимого законодательства."},
+      {t:"p", text:"8.2. Актуальная версия политики размещается в боте."},
+      {t:"h", text:"9. Контактная информация"},
+      {t:"p", text:"По вопросам, связанным с обработкой информации и конфиденциальностью, пользователь может обратиться в службу поддержки:"},
+      {t:"link", label:"Telegram: @DeathGun_Gems", url:"https://t.me/DeathGun_Gems"},
+      {t:"hr"},
+      {t:"small", text:"Реквизиты организации: ОсОО «МАРКЕТ ЛИНК», Кыргызская Республика, г. Бишкек, Свердловский район, ул. Киевская, 62. ОГРН: 303671-3301-000, ИНН: 9909692242."}
+    ]
+  },
+  {
+    id: "terms", icon: "doc", title: "Пользовательское соглашение",
+    blocks: [
+      {t:"p", text:"Настоящее Пользовательское соглашение определяет условия использования сервиса Death Gun Shop и приобретения через него внутриигровых товаров и цифровых услуг."},
+      {t:"p", text:"Использование бота, оформление заказа или совершение оплаты означает согласие пользователя с настоящим Пользовательским соглашением."},
+      {t:"h", text:"1. Общие положения"},
+      {t:"p", text:"1.1. Death Gun Shop предоставляет пользователям возможность приобретать внутриигровые товары и цифровые услуги для поддерживаемых игровых проектов, включая Brawl Stars, Clash Royale и другие игры, представленные в магазине."},
+      {t:"p", text:"1.2. Перечень доступных игр, товаров, способов оплаты и функциональных возможностей магазина может изменяться без предварительного уведомления."},
+      {t:"p", text:"1.3. Пользователь самостоятельно принимает решение об использовании сервиса и несёт ответственность за соблюдение настоящего соглашения."},
+      {t:"h", text:"2. Оформление и выполнение заказов"},
+      {t:"p", text:"2.1. При оформлении заказа пользователь обязан предоставлять достоверные и корректные данные, необходимые для его выполнения."},
+      {t:"p", text:"2.2. После успешного поступления оплаты заказ принимается в обработку."},
+      {t:"p", text:"2.3. Стандартный срок выполнения заказа составляет несколько минут, однако в отдельных случаях выполнение может занять до 2 суток."},
+      {t:"p", text:"2.4. Увеличение срока выполнения может быть связано с техническими работами, обновлениями игровых серверов, временной недоступностью игры, высокой нагрузкой или другими обстоятельствами, не зависящими от магазина."},
+      {t:"p", text:"2.5. Если выполнение оплаченного заказа невозможно, денежные средства могут быть возвращены на внутренний баланс пользователя в боте. Средства внутреннего баланса могут использоваться для последующих заказов."},
+      {t:"h", text:"3. Обязанности пользователя"},
+      {t:"p", text:"Пользователь обязуется:"},
+      {t:"ul", items:[
+        "предоставлять достоверные данные при оформлении заказа",
+        "не использовать сервис для мошенничества, обмана или иных противоправных действий",
+        "не предпринимать попыток получить товар или денежные средства путём предоставления заведомо ложной информации",
+        "не использовать технические уязвимости, ошибки или сбои сервиса с целью получения необоснованной выгоды",
+        "соблюдать правила соответствующих игровых платформ и действующее законодательство"
+      ]},
+      {t:"h", text:"4. Запрещённые действия"},
+      {t:"p", text:"Пользователю запрещается:"},
+      {t:"ul", items:[
+        "осуществлять мошеннические действия при оплате или оформлении заказов",
+        "намеренно предоставлять неверные данные с целью получения товара либо возврата денежных средств",
+        "оспаривать или отменять платёж после фактического получения оплаченного товара без законных оснований",
+        "использовать ошибки или технические неисправности сервиса для получения необоснованной выгоды"
+      ]},
+      {t:"h", text:"5. Возврат денежных средств"},
+      {t:"p", text:"5.1. Если оплаченный товар не был предоставлен или существенно не соответствует условиям оформленного заказа, пользователь вправе обратиться в службу поддержки."},
+      {t:"p", text:"5.2. Каждый запрос на возврат рассматривается индивидуально с учётом информации о заказе и фактических обстоятельств."},
+      {t:"p", text:"5.3. Для рассмотрения запроса магазин может запросить информацию, необходимую для проверки заказа."},
+      {t:"p", text:"5.4. Если будет установлено, что оплаченный товар был предоставлен пользователю, возврат денежных средств за полученный товар не производится, за исключением случаев, предусмотренных действующим законодательством."},
+      {t:"p", text:"5.5. Возврат осуществляется тем способом, который доступен магазину и соответствует используемому способу оплаты."},
+      {t:"h", text:"6. Ответственность"},
+      {t:"p", text:"6.1. Пользователь несёт ответственность за достоверность предоставленных им данных."},
+      {t:"p", text:"6.2. Магазин не несёт ответственности за задержки или невозможность выполнения заказа, вызванные техническими работами, обновлениями, сбоями игровых серверов, действиями игровых платформ, платёжных систем или иными обстоятельствами, которые находятся вне контроля магазина."},
+      {t:"p", text:"6.3. Магазин не отвечает за последствия использования пользователем предоставленных им данных с нарушением правил соответствующей игровой платформы."},
+      {t:"p", text:"6.4. В случае нарушения пользователем настоящего соглашения магазин вправе ограничить использование сервиса и отказать в дальнейшем обслуживании в предусмотренных настоящими правилами случаях."},
+      {t:"h", text:"7. Изменение соглашения"},
+      {t:"p", text:"7.1. Магазин вправе изменять настоящее Пользовательское соглашение."},
+      {t:"p", text:"7.2. Актуальная версия соглашения размещается в боте."},
+      {t:"p", text:"7.3. Продолжение использования сервиса после публикации изменений означает принятие пользователем обновлённой версии соглашения."},
+      {t:"h", text:"8. Разрешение споров"},
+      {t:"p", text:"8.1. Все возникающие вопросы и спорные ситуации рекомендуется сначала решать через службу поддержки магазина."},
+      {t:"p", text:"8.2. Если спор не удалось урегулировать путём переговоров, он разрешается в соответствии с применимым законодательством."},
+      {t:"h", text:"9. Контактная информация"},
+      {t:"p", text:"По вопросам заказов, оплаты, возвратов и работы магазина пользователь может обратиться в службу поддержки через контакты, указанные в настройках бота."},
+      {t:"link", label:"Telegram: @DeathGun_Gems", url:"https://t.me/DeathGun_Gems"},
+      {t:"hr"},
+      {t:"small", text:"Реквизиты организации: ОсОО «МАРКЕТ ЛИНК», Кыргызская Республика, г. Бишкек, Свердловский район, ул. Киевская, 62. ОГРН: 303671-3301-000, ИНН: 9909692242."}
+    ]
+  },
+  {
+    id: "faq", icon: "question", title: "FAQ и правила использования",
+    blocks: [
+      {t:"p", text:"Добро пожаловать в Death Gun Shop. Здесь собраны основные правила использования магазина и ответы на часто возникающие вопросы."},
+      {t:"h", text:"Правила оформления заказа"},
+      {t:"p", text:"Перед оплатой обязательно проверяйте указанные при оформлении заказа данные. Ответственность за корректность предоставленной информации несёт пользователь."},
+      {t:"p", text:"При использовании магазина необходимо соблюдать действующее законодательство и правила соответствующей игровой платформы."},
+      {t:"p", text:"Мы не поддерживаем мошенничество, обман, попытки получить товар незаконным способом или иные недобросовестные действия."},
+      {t:"h", text:"Срок выполнения заказа"},
+      {t:"p", text:"После успешной оплаты заказ передаётся на выполнение."},
+      {t:"p", text:"Обычно игровые товары предоставляются в течение нескольких минут. В отдельных случаях выполнение заказа может занять больше времени из-за технических работ, обновлений игры, высокой нагрузки или других обстоятельств, не зависящих от магазина."},
+      {t:"p", text:"Максимальный срок выполнения заказа — до 2 суток с момента оплаты."},
+      {t:"p", text:"Если выполнить заказ невозможно, оплаченная сумма возвращается на внутренний баланс пользователя в боте. Средства с внутреннего баланса можно использовать для оплаты следующего заказа."},
+      {t:"h", text:"Безопасность"},
+      {t:"p", text:"Оплата производится доступными в боте способами."},
+      {t:"p", text:"Мы принимаем необходимые меры для защиты информации, предоставляемой пользователями при оформлении заказа и оплате."},
+      {t:"h", text:"Возврат средств"},
+      {t:"p", text:"Если оплаченный товар не был предоставлен либо предоставленный товар не соответствует условиям заказа, пользователь может обратиться в службу поддержки для рассмотрения вопроса о возврате средств."},
+      {t:"p", text:"Возврат производится после проверки обстоятельств заказа. Запрос на возврат необходимо направить через службу поддержки в боте."},
+      {t:"p", text:"Возврат средств не производится в случаях, когда пользователь получил оплаченный товар или услугу, а затем пытается оспорить платёж без оснований."},
+      {t:"h", text:"Поддержка"},
+      {t:"p", text:"Если у вас возникли вопросы по заказу, оплате или возврату, обратитесь в службу поддержки через контакты, указанные в настройках бота."},
+      {t:"link", label:"Telegram: @DeathGun_Gems", url:"https://t.me/DeathGun_Gems"},
+      {t:"p", text:"Если проблема связана с конкретным заказом, рекомендуется указать его номер и подробно описать ситуацию."}
+    ]
+  }
+];
+
 /* ===================== STATE ===================== */
 const store = {
   get(key, fallback){ try{ const v = localStorage.getItem(key); return v===null?fallback:JSON.parse(v);}catch(e){return fallback;} },
@@ -801,6 +1019,7 @@ const state = {
   cart: store.get("dgs_cart", []),   // [{productId, qty}]
   email: store.get("dgs_email", ""),
   orders: store.get("dgs_orders", []),
+  orderSeq: store.get("dgs_order_seq", 0),   // локальный счётчик "Заказ №N" для удобного отображения этому пользователю
   /* >>> НАСТРОЙКА: тестовый баланс для беты. Сейчас каждому новому пользователю
      выдаётся 5000₽ "демо-денег", чтобы можно было проверить достижения и оплату
      балансом. Перед реальным запуском обязательно поменяйте 5000 на 0 в строке
@@ -818,6 +1037,7 @@ const state = {
 function saveCart(){ store.set("dgs_cart", state.cart); }
 function saveEmail(){ store.set("dgs_email", state.email); }
 function saveOrders(){ store.set("dgs_orders", state.orders); }
+function saveOrderSeq(){ store.set("dgs_order_seq", state.orderSeq); }
 function saveBalance(){ store.set("dgs_balance", state.balance); }
 function saveRouletteLast(){ store.set("dgs_roulette_last", state.rouletteLast); }
 function saveCoupon(){ store.set("dgs_coupon", state.coupon); }
@@ -988,12 +1208,13 @@ function checkAchievements(beforeIds){
 function goto(route){
   state.route = route;
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active", b.dataset.view===route));
-  ["shop","cart","settings"].forEach(v=>{
+  ["shop","cart","orders","settings"].forEach(v=>{
     document.getElementById("view-"+v).hidden = (v!==route);
   });
   document.getElementById("topbar-sub").textContent =
     route==="shop" ? "Игровая валюта без переплат" :
     route==="cart" ? "Ваши товары перед оформлением" :
+    route==="orders" ? "Статус ваших заказов" :
     "Профиль и поддержка";
   syncBackButton();
   render();
@@ -1041,6 +1262,8 @@ if (tg && tg.BackButton){
     if (isSheetOpen("screen-redroom")) return closeSheet("screen-redroom");
     if (isSheetOpen("screen-achievements")) return closeSheet("screen-achievements");
     if (isSheetOpen("screen-history")) return closeSheet("screen-history");
+    if (isSheetOpen("screen-legal-doc")) return closeSheet("screen-legal-doc");
+    if (isSheetOpen("screen-legal-list")) return closeSheet("screen-legal-list");
     if (state.route==="shop" && (state.categoryId||state.subcategoryId)) return goBackInShop();
     if (state.route!=="shop") return goto("shop");
   }); }catch(e){}
@@ -1050,6 +1273,7 @@ if (tg && tg.BackButton){
 function render(){
   if (state.route==="shop") renderShop();
   if (state.route==="cart") renderCart();
+  if (state.route==="orders") renderOrders();
   if (state.route==="settings") renderSettings();
 }
 
@@ -1201,6 +1425,103 @@ function renderCart(){
   if (checkoutBtn) checkoutBtn.onclick = ()=>{ haptic(); openBuySheet(cartLinesResolved(), true); };
 }
 
+/* ===================== RENDER: ЗАКАЗЫ ===================== */
+let ordersTab = "active"; // UI-состояние вкладки, не сохраняем между сессиями
+
+function orderStatusLabel(status){
+  return status==="done" ? "Выполнено" : status==="cancelled" ? "Отменён" : "В обработке";
+}
+
+function updateOrdersBadge(){
+  const badge = document.getElementById("orders-badge");
+  const n = state.orders.filter(o=>o.status!=="done" && o.status!=="cancelled").length;
+  if (n>0){ badge.hidden=false; badge.textContent = n>99?"99+":n; } else badge.hidden=true;
+}
+
+function orderCardHTML(o){
+  const itemsText = (o.items||[]).map(i=>i.title+" × "+i.qty).join(", ");
+  const isDone = o.status==="done";
+  return `
+    <div class="order-card ${isDone?'done':''}">
+      <div class="order-card-head">
+        <div class="order-card-num">Заказ №${o.seq||"—"}</div>
+        <div class="order-card-status ${isDone?'done':'pending'}">${orderStatusLabel(o.status)}</div>
+      </div>
+      <div class="order-card-items">${esc(itemsText)}</div>
+      <div class="order-card-code" data-copy="${esc(o.orderId)}">${esc(o.orderId)}<span class="order-card-copy-hint"> · нажмите, чтобы скопировать</span></div>
+      ${!isDone ? `
+        <div class="order-card-hint">Для получения заказа скопируйте код заказа и отправьте его менеджеру <b>@DeathGun_Gems</b></div>
+        <button class="btn btn-primary btn-block order-card-get" data-get="${esc(o.orderId)}">Получить заказ</button>
+        <button class="order-card-testdone" data-testdone="${esc(o.orderId)}">(тест) отметить выполненным — временно, уберём позже</button>
+      ` : `
+        <div class="order-card-hint success">Подтверждено менеджером ✓</div>
+      `}
+    </div>
+  `;
+}
+
+function renderOrders(){
+  const root = document.getElementById("view-orders");
+  updateOrdersBadge();
+
+  if (!state.orders.length){
+    root.innerHTML = `
+      <div class="section-row"><div class="section-title">Заказы</div></div>
+      <div class="empty-state">${ICONS.box}<p>У вас пока нет заказов.<br>Оформите первую покупку в разделе «Магазин».</p></div>
+    `;
+    return;
+  }
+
+  const active = state.orders.filter(o=>o.status!=="done" && o.status!=="cancelled");
+  const done = state.orders.filter(o=>o.status==="done" || o.status==="cancelled");
+  const list = ordersTab==="active" ? active : done;
+  const listHTML = list.length ? list.map(orderCardHTML).join("") :
+    `<div class="empty-state">${ICONS.box}<p>${ordersTab==="active" ? "Активных заказов нет." : "Выполненных заказов пока нет."}</p></div>`;
+
+  const historyShortcut = ordersTab==="done" ? `
+    <div class="menu-list" style="margin-top:16px;">
+      <div class="menu-row" id="row-orders-history">
+        <div class="menu-row-icon">${ICONS.history}</div>
+        <div class="menu-row-text">
+          <div class="menu-row-title">История транзакций</div>
+          <div class="menu-row-sub">Все пополнения и списания, для удобства</div>
+        </div>
+        <div class="menu-row-chev">${ICONS.chev}</div>
+      </div>
+    </div>` : "";
+
+  root.innerHTML = `
+    <div class="section-row"><div class="section-title">Заказы</div></div>
+    <div class="orders-tabs">
+      <button class="orders-tab ${ordersTab==='active'?'active':''}" data-tab="active">Активные${active.length?` (${active.length})`:''}</button>
+      <button class="orders-tab ${ordersTab==='done'?'active':''}" data-tab="done">Выполнено${done.length?` (${done.length})`:''}</button>
+    </div>
+    ${listHTML}
+    ${historyShortcut}
+  `;
+
+  root.querySelectorAll(".orders-tab").forEach(b=>{
+    b.onclick = ()=>{ haptic("light"); ordersTab = b.dataset.tab; renderOrders(); };
+  });
+  root.querySelectorAll("[data-copy]").forEach(el=>{
+    el.onclick = ()=>copyText(el.dataset.copy);
+  });
+  root.querySelectorAll("[data-get]").forEach(el=>{
+    el.onclick = ()=>{
+      copyText(el.dataset.get);
+      openExternalLink(MANAGER_URL);
+    };
+  });
+  root.querySelectorAll("[data-testdone]").forEach(el=>{
+    el.onclick = ()=>{
+      const o = state.orders.find(x=>x.orderId===el.dataset.testdone);
+      if (o){ o.status = "done"; saveOrders(); renderOrders(); toast("Заказ отмечен выполненным (тест)"); }
+    };
+  });
+  const historyRow = root.querySelector("#row-orders-history");
+  if (historyRow) historyRow.onclick = openHistoryScreen;
+}
+
 /* ===================== RENDER: SETTINGS ===================== */
 function initials(u){
   const n = (u.first_name||u.username||"?").trim();
@@ -1261,23 +1582,56 @@ function renderSettings(){
         </div>
         <div class="menu-row-chev">${ICONS.chev}</div>
       </div>
+      <div class="menu-row" id="row-legal">
+        <div class="menu-row-icon">${ICONS.doc}</div>
+        <div class="menu-row-text">
+          <div class="menu-row-title">Правила пользования</div>
+          <div class="menu-row-sub">Соглашение, конфиденциальность, FAQ</div>
+        </div>
+        <div class="menu-row-chev">${ICONS.chev}</div>
+      </div>
     </div>
 
-    <div class="footer-note">Death Gun Shop · v1.1</div>
+    <div class="footer-note">Death Gun Shop · v1.2</div>
   `;
   document.getElementById("btn-edit-email").onclick = openEmailSheet;
   document.getElementById("btn-topup").onclick = openBalanceSheet;
   document.getElementById("row-achievements").onclick = openAchievementsScreen;
   document.getElementById("row-history").onclick = openHistoryScreen;
   document.getElementById("row-support").onclick = ()=>{
-    if (SUPPORT_URL){
-      try{ if (tg && tg.openTelegramLink && SUPPORT_URL.includes("t.me")) tg.openTelegramLink(SUPPORT_URL);
-           else if (tg && tg.openLink) tg.openLink(SUPPORT_URL);
-           else window.open(SUPPORT_URL, "_blank"); }catch(e){ window.open(SUPPORT_URL, "_blank"); }
-    } else {
-      toast("Ссылка на поддержку скоро появится");
-    }
+    if (SUPPORT_URL) openExternalLink(SUPPORT_URL);
+    else toast("Ссылка на поддержку скоро появится");
   };
+  document.getElementById("row-legal").onclick = openLegalList;
+}
+
+/* Открыть внешнюю/телеграм ссылку, аккуратно через Telegram WebApp API если доступно */
+function openExternalLink(url){
+  if (!url) return;
+  try{
+    if (tg && tg.openTelegramLink && url.includes("t.me")) tg.openTelegramLink(url);
+    else if (tg && tg.openLink) tg.openLink(url);
+    else window.open(url, "_blank");
+  }catch(e){ window.open(url, "_blank"); }
+}
+
+/* Скопировать текст в буфер обмена (с фолбэком на старых WebView) */
+function copyText(text){
+  try{
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(()=>toast("Скопировано: " + text)).catch(()=>fallbackCopy(text));
+    } else fallbackCopy(text);
+  }catch(e){ fallbackCopy(text); }
+}
+function fallbackCopy(text){
+  try{
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    toast("Скопировано: " + text);
+  }catch(e){ toast("Не удалось скопировать"); }
 }
 
 /* ===================== EMAIL SHEET ===================== */
@@ -1400,6 +1754,55 @@ function openHistoryScreen(){
   openSheetEl("screen-history");
 }
 document.getElementById("history-back").onclick = ()=>closeSheet("screen-history");
+
+/* ===================== ПРАВИЛА ПОЛЬЗОВАНИЯ ===================== */
+function renderLegalBlocks(blocks){
+  return blocks.map(b=>{
+    if (b.t==="h") return `<div class="legal-h">${esc(b.text)}</div>`;
+    if (b.t==="p") return `<div class="legal-p">${esc(b.text)}</div>`;
+    if (b.t==="ul") return `<ul class="legal-ul">${b.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`;
+    if (b.t==="link") return `<div class="legal-link" data-link="${esc(b.url)}">${esc(b.label)} ${ICONS.chev}</div>`;
+    if (b.t==="hr") return `<div class="legal-hr"></div>`;
+    if (b.t==="small") return `<div class="legal-small">${esc(b.text)}</div>`;
+    return "";
+  }).join("");
+}
+function renderLegalList(){
+  const body = document.getElementById("legal-list-body");
+  body.innerHTML = `
+    <div class="menu-list">
+      ${LEGAL_DOCS.map(d=>`
+        <div class="menu-row" data-legal="${d.id}">
+          <div class="menu-row-icon">${ICONS[d.icon]}</div>
+          <div class="menu-row-text">
+            <div class="menu-row-title">${esc(d.title)}</div>
+          </div>
+          <div class="menu-row-chev">${ICONS.chev}</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  body.querySelectorAll("[data-legal]").forEach(el=>{
+    el.onclick = ()=>openLegalDoc(el.dataset.legal);
+  });
+}
+function openLegalList(){
+  renderLegalList();
+  openSheetEl("screen-legal-list");
+}
+function openLegalDoc(id){
+  const doc = LEGAL_DOCS.find(d=>d.id===id);
+  if (!doc) return;
+  document.getElementById("legal-doc-title").textContent = doc.title;
+  const body = document.getElementById("legal-doc-body");
+  body.innerHTML = renderLegalBlocks(doc.blocks);
+  body.querySelectorAll("[data-link]").forEach(el=>{
+    el.onclick = ()=>openExternalLink(el.dataset.link);
+  });
+  openSheetEl("screen-legal-doc");
+}
+document.getElementById("legal-list-back").onclick = ()=>closeSheet("screen-legal-list");
+document.getElementById("legal-doc-back").onclick = ()=>closeSheet("screen-legal-doc");
 
 /* ===================== SECRET ROULETTE ===================== */
 // Числа 1–20(%) раскиданы по кругу не по порядку, а вперемешку —
@@ -1842,10 +2245,7 @@ function renderBuySheet(){
       </div>
     `;
     const supportBtn = document.getElementById("buy-support");
-    if (supportBtn) supportBtn.onclick = ()=>{
-      try{ if (tg && tg.openTelegramLink && SUPPORT_URL.includes("t.me")) tg.openTelegramLink(SUPPORT_URL);
-           else window.open(SUPPORT_URL,"_blank"); }catch(e){ window.open(SUPPORT_URL,"_blank"); }
-    };
+    if (supportBtn) supportBtn.onclick = ()=>openExternalLink(SUPPORT_URL);
     document.getElementById("buy-done").onclick = ()=>{ closeSheet("overlay"); };
     return;
   }
@@ -1861,6 +2261,8 @@ function submitOrder(){
   haptic("medium");
   const beforeUnlocked = unlockedAchievementIds();
   const orderId = "DG-" + Date.now().toString(36).toUpperCase();
+  state.orderSeq += 1;
+  saveOrderSeq();
 
   if (buyState.payment==='balance'){
     state.balance -= total;
@@ -1869,6 +2271,9 @@ function submitOrder(){
 
   const payload = {
     orderId,
+    seq: state.orderSeq,
+    status: "pending",     // pending | done | cancelled — реальное подтверждение "выполнено" должен ставить бэкенд/менеджер
+    createdAt: Date.now(),
     items: buyState.lines.map(l=>({title:l.product.title, amount:l.product.amount, qty:l.qty, price:l.product.price})),
     total,
     email: state.email,
@@ -1876,8 +2281,20 @@ function submitOrder(){
     user: { id: tgUser.id||null, username: tgUser.username||null, first_name: tgUser.first_name||null }
   };
   try{ if (tg && tg.sendData) tg.sendData(JSON.stringify(payload)); }catch(e){}
+  // Уведомление админу через бота (кнопки "Открыть чат"/"Выполнено") — требует бэкенда.
+  // Пока NOTIFY_ENDPOINT пустой, этот вызов ничего не делает.
+  if (NOTIFY_ENDPOINT){
+    try{
+      fetch(NOTIFY_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order: payload, initData: (tg && tg.initData) || "" })
+      }).catch(()=>{});
+    }catch(e){}
+  }
   state.orders.unshift(payload);
   saveOrders();
+  updateOrdersBadge();
 
   const discountNote = pricing.discountAmount > 0
     ? `, скидка по купону −${state.coupon.percent}% на 1 шт (−${money(pricing.discountAmount)})`
@@ -1904,6 +2321,7 @@ function submitOrder(){
   buyState.orderId = orderId;
   renderBuySheet();
   if (state.route==="cart") renderCart();
+  if (state.route==="orders") renderOrders();
   if (state.route==="settings") renderSettings();
   if (isSheetOpen("screen-history")) renderHistoryScreen();
   if (isSheetOpen("screen-roulette")) renderRouletteCoupon();
@@ -2030,6 +2448,7 @@ document.querySelectorAll(".nav-btn").forEach(btn=>{
 
 /* ===================== INIT ===================== */
 renderCartBadge();
+updateOrdersBadge();
 goto("shop");
 </script>
 </body>
